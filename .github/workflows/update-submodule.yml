@@ -1,28 +1,88 @@
 name: Sync GitLab Submodule
 
+# Trigger the workflow every 2 weeks and allow manual triggering
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 0 1,15 * *'  # Runs at 00:00 on the 1st and 15th of every month
+  workflow_dispatch:  # Allows manual triggering
 
+# Define environment variables
+env:
+  SUBMODULE_PATH: devops/pipeline-CICD-2408-IB
+
+# Define the jobs (stages) in the workflow
 jobs:
-  sync-submodule:
+  # Stage 1: Prepare the repository
+  prepare:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository with submodules
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'  # Fetch all submodules
+          token: ${{ secrets.PAT }}  # Use Personal Access Token for authentication
+          fetch-depth: 0  # Fetch all history for .GitInfo and .Lastmod
+
+      # Step 2: Configure Git
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "github-actions@github.com"
+      
+      # Step 3: Debug - Print Git configuration
+      - name: Debug - Git config
+        run: git config --list
+
+  # Stage 2: Update the submodule
+  update_submodule:
+    needs: prepare  # This job depends on the 'prepare' job
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the repository again (each job runs in a fresh virtual environment)
       - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}  # Use PAT for checkout
-      
+          token: ${{ secrets.PAT }}
+          fetch-depth: 0
+
+      # Step 2: Update the submodule
       - name: Update submodule
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git submodule update --remote devops/pipeline-CICD-2408-IB
-          git add devops/pipeline-CICD-2408-IB
+          echo "Updating submodule at ${{ env.SUBMODULE_PATH }}..."
+          git submodule update --remote ${{ env.SUBMODULE_PATH }}
+          git add ${{ env.SUBMODULE_PATH }}
           git diff --staged --quiet || git commit -m "🔄 Update GitLab submodule"
-      
+
+      # Step 3: Debug - Show Git status
+      - name: Debug - Git status
+        run: |
+          echo "Git status:"
+          git status
+          echo "Latest commit:"
+          git log -1 --oneline
+
+  # Stage 3: Push changes
+  push_changes:
+    needs: update_submodule  # This job depends on the 'update_submodule' job
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the repository again
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      # Step 2: Push changes
       - name: Push changes
-        run: git push
+        run: |
+          echo "Pushing changes to ${GITHUB_REF#refs/heads/}..."
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      # Step 3: Debug - Confirm push
+      - name: Debug - Confirm push
+        run: |
+          echo "Latest remote commit:"
+          git ls-remote origin HEAD
