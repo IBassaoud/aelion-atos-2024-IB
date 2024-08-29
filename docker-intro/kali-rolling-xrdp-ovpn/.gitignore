@@ -1,0 +1,37 @@
+# Ignore shared directory
+shared/
+
+# Ignore log files
+*.log
+
+# Ignore environment-specific files
+.env
+
+# Ignore user-specific files
+.vscode/
+.idea/
+
+# Ignore Docker-related files
+.dockerignore
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.swo
+
+# Ignore compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore package files
+*.tar.gz
+*.zip
+
+# Ignore OpenVPN config (if it contains sensitive info)
+ism34.ovpn

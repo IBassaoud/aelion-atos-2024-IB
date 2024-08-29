@@ -1,0 +1,3 @@
+[submodule "devops/pipeline-CICD-2408-IB"]
+	path = devops/pipeline-CICD-2408-IB
+	url = https://gitlab.com/IBassaoud/pipeline-CICD-2408-IB.git

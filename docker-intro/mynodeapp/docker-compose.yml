@@ -1,0 +1,35 @@
+version: "3.9"
+
+
+services:
+  # définir le container
+  # faire le build
+  # faire la redirection de port
+ app:
+    # image: mynodeapp-app
+    container_name: mynodeapp
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+    # Prod aware
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.50'
+    #       memory: 50M
+    #       pids: 1
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 20M
+    #Logging
+    logging:
+          driver: "json-file"
+          options:
+            max-size: "1k"
+            max-file: "3"

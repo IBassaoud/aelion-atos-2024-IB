@@ -1,0 +1,17 @@
+{
+  "name": "docker_web_app",
+  "version": "1.0.0",
+  "description": "Node.js on Docker",
+  "author": "Ismail BASSAOUD <ismail.bassaoud@gmail.com>",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.16.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

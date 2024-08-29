@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  kali:
+    build: .
+    image: aelion-ib-kali-rolling-xrdp-ovpn
+    container_name: kali-rolling-xrdp-ovpn
+    ports:
+      - "3390:3390"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    volumes:
+      - ./shared:/shared
+    restart: unless-stopped
+    command: /bin/bash -c "supervisord -c /etc/supervisor/conf.d/xrdp.conf && sleep infinity"
